@@ -45,9 +45,10 @@
             const recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.onresult = (event) => {
-              const lastIndex = event.results.length - 1;
-              const transcript = event.results.item(lastIndex)[0].transcript;
-              setText((text) => [...text, transcript]);
+              if (event.results.length > 0) {
+                const transcript = event.results[0][0].transcript;
+                setText((text) => [...text, transcript]);
+              }
             };
             recognition.onend = () => {
               setIsRecording(false);
