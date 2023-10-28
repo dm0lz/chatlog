@@ -18,7 +18,7 @@
           const [isRecording, setIsRecording] = React.useState(false);
           const [text, setText] = React.useState([]);
           const [entries, setEntries] = React.useState([]);
-          const lastResultsRef = React.useRef(new Array(3));
+          const lastResultsRef = React.useRef(new Array(25));
           const entriesRef = React.useRef(null);
           entriesRef.current = entries;
           const gistId = "d2e4bc616cbc85ebfe4999fe2a19212e";
