@@ -20,6 +20,7 @@
           const [entries, setEntries] = React.useState([]);
           const lastResultsRef = React.useRef(new Array(25));
           const entriesRef = React.useRef(null);
+          const restartTimeoutRef = React.useRef(null);
           entriesRef.current = entries;
           const gistId = "d2e4bc616cbc85ebfe4999fe2a19212e";
 
@@ -59,7 +60,7 @@
             };
             recognition.onend = () => {
               setIsRecording(false);
-              setTimeout(function () {
+              restartTimeoutRef.current = setTimeout(function () {
                 recognition.start();
                 setIsRecording(true);
               }, 100);
@@ -69,6 +70,7 @@
             return () => {
               recognition.abort();
               recognition = null;
+              clearTimeout(restartTimeoutRef.current);
             };
           }, []);
 
@@ -103,8 +105,11 @@
                 setEntries([]);
               }
             };
-            setInterval(polling, 20000);
+            const intervalID = setInterval(polling, 20000);
             polling();
+            return () => {
+              clearInterval(intervalID);
+            };
           }, [octokit]);
 
           React.useEffect(() => {
