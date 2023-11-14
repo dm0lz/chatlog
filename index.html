@@ -106,7 +106,7 @@
                 setText([]);
               }
             };
-            const intervalID = setInterval(polling, 20000);
+            const intervalID = setInterval(polling, 60000);
             polling();
             return () => {
               clearInterval(intervalID);
