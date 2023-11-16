@@ -163,16 +163,16 @@
                     (entry, key) => html`
                       <li key=${key}>
                         <div
-                          className="grid grid-cols-12 m-3 p-3 border-2 rounded-md bg-amber-100"
+                          class="grid grid-cols-12 m-3 p-3 border-2 rounded-md bg-amber-100"
                         >
-                          <p className="col-span-9 lg:col-span-11 px-6">
+                          <p class="col-span-9 lg:col-span-11 px-6">
                             ${entry.content}
                           </p>
-                          <div className="col-span-3 lg:col-span-1">
+                          <div class="col-span-3 lg:col-span-1">
                             <button
                               onClick=${removeRecord}
                               data-timestamp=${entry.timestamp}
-                              className="p-3 bg-orange-600 text-white"
+                              class="p-3 bg-orange-600 text-white"
                             >
                               Remove
                             </button>
