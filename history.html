@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/chatlog/favicon.ico" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+      import React from "https://cdn.skypack.dev/react";
+      import ReactDOM from "https://cdn.skypack.dev/react-dom";
+      import htm from "https://cdn.skypack.dev/htm";
+      import { Octokit } from "https://esm.sh/octokit";
+      import axios from "https://cdn.skypack.dev/axios";
+      (() => {
+        const Index = () => {
+          const html = htm.bind(React.createElement);
+          const [octokit, setOctokit] = React.useState(null);
+          const [entries, setEntries] = React.useState([]);
+          const [selectedFileEntries, setSelectedFileEntries] = React.useState(
+            []
+          );
+          const gistId = "d2e4bc616cbc85ebfe4999fe2a19212e";
+          const date = new Date().toLocaleString("fr-FR").split(" ")[0];
+          const [selectedFile, setSelectedFile] = React.useState(
+            `chatlog_${date.replace(/\//g, "")}`
+          );
+
+          React.useEffect(() => {
+            (async () => {
+              const payload = {
+                encrypted_message:
+                  "067d7cb4b556c0ef447fd0a9f56332aefea9fee14db7aa553ae496c038b5454cf448c45a84864cc7ccdee5eada10ede1581ea2848a48260b8355a4b568283ccba818104bb176ae1fe4dc2729d5a4d1bce5aacbb250b68e8f212f716cbab2b7ab1d77031a8d8a92a0daa656213081764f2a2a146cb38ed933d720a49a81ea9394c5ecadd9c3cfefdea28aaeafc03ae55fefe4fcf57b4b5f9505549291d753f9b8c2cb4aba088ed88fbc875c469e3b64448b1ad77e2fbf48d4b4552240ee943050fbebcf654ebbd88a1b8ea4756ae6e4f015870a3811f434190c36d5020a86cb50305e1240bf197ef996b60ea6293f273356cc8a5b3e3869eeb7883005fcd6af21",
+              };
+              const decryptEndpoint =
+                "https://europe-west9-encrypt-decrypt-403217.cloudfunctions.net/decrypt-message";
+              const response = await axios.post(decryptEndpoint, payload);
+              setOctokit(
+                new Octokit({
+                  auth: response.data.decrypted_message,
+                })
+              );
+            })();
+          }, []);
+
+          React.useEffect(() => {
+            if (!octokit) return;
+            (async () => {
+              const gist = await getGist();
+              const gistFiles = Object.entries(gist.data.files);
+              const validFiles = gistFiles.filter((file) =>
+                file[0].includes("chatlog_")
+              );
+              const files = validFiles.map((entry) => {
+                const date = entry[0].replace("chatlog_", "");
+                const jsDate = new Date(
+                  date.slice(4, 8),
+                  date.slice(2, 4),
+                  date.slice(0, 2)
+                );
+                return {
+                  fileName: entry[0],
+                  url: entry[1].raw_url,
+                  date: jsDate,
+                };
+              });
+              setEntries(files);
+            })();
+          }, [octokit]);
+
+          React.useEffect(() => {
+            if (entries.length === 0) return;
+            (async () => {
+              await fetchEntries(selectedFile);
+            })();
+          }, [entries]);
+
+          const getGist = async () => {
+            try {
+              return await octokit.request("GET /gists/{gist_id}", {
+                gist_id: gistId,
+                headers: {
+                  "X-GitHub-Api-Version": "2022-11-28",
+                },
+              });
+            } catch (error) {
+              console.log(error);
+            }
+          };
+
+          const removeRecord = async (e) => {
+            const timestamp = e.target.getAttribute("data-timestamp");
+            const records = selectedFileEntries.filter(
+              (entry) => parseInt(entry.timestamp) !== parseInt(timestamp)
+            );
+            const files = {
+              [selectedFile]: {
+                content: JSON.stringify(records),
+              },
+            };
+            setSelectedFileEntries(records);
+            await updateGist(files);
+          };
+
+          const updateGist = async (files) => {
+            try {
+              const payload = {
+                gist_id: gistId,
+                description: "An updated gist description",
+                files: files,
+                headers: {
+                  "X-GitHub-Api-Version": "2022-11-28",
+                },
+              };
+              return await octokit.request("PATCH /gists/{gist_id}", payload);
+            } catch (error) {
+              console.log(error);
+            }
+          };
+
+          const handleFileNameSelected = async (e) => {
+            const file = e.target.getAttribute("data-fileName");
+            setSelectedFile(file);
+            await fetchEntries(file);
+          };
+
+          const fetchEntries = async (file) => {
+            if (entries.length === 0) return;
+            const entry = entries.find((entry) => entry.fileName === file);
+            const response = await axios.get(entry.url);
+            setSelectedFileEntries(response.data);
+          };
+
+          return html`
+            <section class="container mx-auto">
+              <div class="flex overflow-x-scroll sticky top-0 bg-white">
+                ${entries
+                  .sort((a, b) => b.date - a.date)
+                  .map(
+                    (entry, key) => html`
+                      <div class="p-2">
+                        <p
+                          key=${key}
+                          class=${`p-3 ${
+                            entry.fileName === selectedFile
+                              ? "bg-black text-white"
+                              : "bg-gray-100"
+                          } rounded-xl cursor-pointer`}
+                          data-fileName=${entry.fileName}
+                          onClick=${handleFileNameSelected}
+                        >
+                          ${entry.fileName}
+                        </p>
+                      </div>
+                    `
+                  )}
+              </div>
+              <ul>
+                ${selectedFileEntries
+                  .sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
+                  .map(
+                    (entry, key) => html`
+                      <li key=${key}>
+                        <div
+                          className="grid grid-cols-12 m-3 p-3 border-2 rounded-md bg-amber-100"
+                        >
+                          <p className="col-span-9 lg:col-span-11 px-6">
+                            ${entry.content}
+                          </p>
+                          <div className="col-span-3 lg:col-span-1">
+                            <button
+                              onClick=${removeRecord}
+                              data-timestamp=${entry.timestamp}
+                              className="p-3 bg-orange-600 text-white"
+                            >
+                              Remove
+                            </button>
+                            <p>
+                              ${new Date(parseInt(entry.timestamp))
+                                .toLocaleString()
+                                .split(" ")[0]}
+                            </p>
+                            <p>
+                              ${new Date(parseInt(entry.timestamp))
+                                .toLocaleString()
+                                .split(" ")[1]}
+                            </p>
+                          </div>
+                        </div>
+                      </li>
+                    `
+                  )}
+              </ul>
+            </section>
+          `;
+        };
+        ReactDOM.render(
+          React.createElement(Index),
+          document.getElementById("root")
+        );
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
