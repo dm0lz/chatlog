@@ -74,6 +74,14 @@
             };
           }, []);
 
+          const validJson = (str) => {
+            let arr = [...str];
+            if (arr.length === 0 || arr[arr.length - 1] === "]") return str;
+            arr = arr.slice(0, arr.lastIndexOf("}") + 1);
+            arr.push("]");
+            return arr.join("");
+          };
+
           React.useEffect(() => {
             if (!octokit) return;
             if (entriesRef.current.length > 0) return;
@@ -86,7 +94,9 @@
                 (entry) => entry[0] === gistFile
               );
               if (currentDayFile) {
-                JSON.parse(currentDayFile[1].content).forEach((element) => {
+                const content = validJson(currentDayFile[1].content);
+                const logs = JSON.parse(content);
+                logs.forEach((element) => {
                   if (
                     !entriesRef.current.some(
                       (entry) =>
