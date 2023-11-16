@@ -16,6 +16,7 @@
           const html = htm.bind(React.createElement);
           const [octokit, setOctokit] = React.useState(null);
           const [entries, setEntries] = React.useState([]);
+          const [isGistFetched, setIsGistFetched] = React.useState(false);
           const [selectedFileEntries, setSelectedFileEntries] = React.useState(
             []
           );
@@ -64,15 +65,23 @@
                 };
               });
               setEntries(files);
+              setIsGistFetched(true);
             })();
           }, [octokit]);
 
           React.useEffect(() => {
-            if (entries.length === 0) return;
+            if (!isGistFetched) return;
             (async () => {
-              await fetchEntries(selectedFile);
+              await fetchSelectedFileEntries(selectedFile);
             })();
-          }, [entries]);
+          }, [isGistFetched, selectedFile]);
+
+          const fetchSelectedFileEntries = async (file) => {
+            if (entries.length === 0) return;
+            const entry = entries.find((entry) => entry.fileName === file);
+            const response = await axios.get(entry.url);
+            setSelectedFileEntries(response.data);
+          };
 
           const getGist = async () => {
             try {
@@ -82,6 +91,22 @@
                   "X-GitHub-Api-Version": "2022-11-28",
                 },
               });
+            } catch (error) {
+              console.log(error);
+            }
+          };
+
+          const updateGist = async (files) => {
+            try {
+              const payload = {
+                gist_id: gistId,
+                description: "An updated gist description",
+                files: files,
+                headers: {
+                  "X-GitHub-Api-Version": "2022-11-28",
+                },
+              };
+              return await octokit.request("PATCH /gists/{gist_id}", payload);
             } catch (error) {
               console.log(error);
             }
@@ -101,33 +126,9 @@
             await updateGist(files);
           };
 
-          const updateGist = async (files) => {
-            try {
-              const payload = {
-                gist_id: gistId,
-                description: "An updated gist description",
-                files: files,
-                headers: {
-                  "X-GitHub-Api-Version": "2022-11-28",
-                },
-              };
-              return await octokit.request("PATCH /gists/{gist_id}", payload);
-            } catch (error) {
-              console.log(error);
-            }
-          };
-
-          const handleFileNameSelected = async (e) => {
+          const handleFileNameSelected = (e) => {
             const file = e.target.getAttribute("data-fileName");
             setSelectedFile(file);
-            await fetchEntries(file);
-          };
-
-          const fetchEntries = async (file) => {
-            if (entries.length === 0) return;
-            const entry = entries.find((entry) => entry.fileName === file);
-            const response = await axios.get(entry.url);
-            setSelectedFileEntries(response.data);
           };
 
           return html`
