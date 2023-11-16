@@ -144,11 +144,13 @@
                             entry.fileName === selectedFile
                               ? "bg-black text-white"
                               : "bg-gray-100"
-                          } rounded-xl cursor-pointer`}
+                          } rounded-xl cursor-pointer w-32 text-center`}
                           data-fileName=${entry.fileName}
                           onClick=${handleFileNameSelected}
                         >
-                          ${entry.fileName}
+                          ${entry.fileName.replace("chatlog_", "").slice(0, 2)}-
+                          ${entry.fileName.replace("chatlog_", "").slice(2, 4)}-
+                          ${entry.fileName.replace("chatlog_", "").slice(4, 8)}
                         </p>
                       </div>
                     `
