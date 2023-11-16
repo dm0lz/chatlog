@@ -18,9 +18,15 @@
           const [isRecording, setIsRecording] = React.useState(false);
           const [text, setText] = React.useState([]);
           const [entries, setEntries] = React.useState([]);
+          const [isGistFetched, setIsGistFetched] = React.useState(false);
+          const [selectedFileEntries, setSelectedFileEntries] = React.useState(
+            []
+          );
           const lastResultsRef = React.useRef(new Array(25));
           const entriesRef = React.useRef(null);
           const restartTimeoutRef = React.useRef(null);
+          const selectedFileEntriesRef = React.useRef(null);
+          selectedFileEntriesRef.current = selectedFileEntries;
           entriesRef.current = entries;
           const gistId = "d2e4bc616cbc85ebfe4999fe2a19212e";
 
@@ -74,46 +80,51 @@
             };
           }, []);
 
-          const validJson = (str) => {
-            let arr = [...str];
-            if (arr.length === 0 || arr[arr.length - 1] === "]") return str;
-            arr = arr.slice(0, arr.lastIndexOf("}") + 1);
-            arr.push("]");
-            return arr.join("");
+          const fetchGist = async () => {
+            const gist = await getGist();
+            const files = gist.data.files;
+            const fileEntries = Object.entries(files);
+            const formattedEntries = fileEntries.map((element) => {
+              return {
+                fileName: element[0],
+                file: element[1],
+              };
+            });
+            setEntries(formattedEntries);
+            setIsGistFetched(true);
           };
 
           React.useEffect(() => {
             if (!octokit) return;
-            if (entriesRef.current.length > 0) return;
+            (async () => {
+              await fetchGist();
+            })();
+          }, [octokit]);
+
+          React.useEffect(() => {
+            if (!isGistFetched) return;
             const polling = async () => {
-              const gist = await getGist();
-              const files = gist.data.files;
-              const entries = Object.entries(files);
-              const gistFile = gistFileName();
-              const currentDayFile = entries.find(
-                (entry) => entry[0] === gistFile
+              const fileName = currentDateFile();
+              const entry = entriesRef.current.find(
+                (entry) => entry.fileName === fileName
               );
-              if (currentDayFile) {
-                const content = validJson(currentDayFile[1].content);
-                const logs = JSON.parse(content);
-                logs.forEach((element) => {
+              if (entry) {
+                const response = await axios.get(entry.file.raw_url);
+                response.data.forEach((element) => {
                   if (
-                    !entriesRef.current.some(
+                    !selectedFileEntriesRef.current.some(
                       (entry) =>
                         parseInt(entry.timestamp) ===
                         parseInt(element.timestamp)
                     )
                   ) {
-                    const payload = {
-                      timestamp: element.timestamp,
-                      content: element.content,
-                    };
-                    setEntries((entries) => [...entries, payload]);
+                    setSelectedFileEntries((entries) => [...entries, element]);
                   }
                 });
               } else {
-                setEntries([]);
+                setSelectedFileEntries([]);
                 setText([]);
+                await fetchGist();
               }
             };
             const intervalID = setInterval(polling, 60000);
@@ -121,20 +132,20 @@
             return () => {
               clearInterval(intervalID);
             };
-          }, [octokit]);
+          }, [isGistFetched]);
 
           React.useEffect(() => {
             (async () => {
               const message = text.pop();
               if (!message) return;
               const payload = { timestamp: Date.now(), content: message };
-              const records = [...entries, payload];
+              const records = [...selectedFileEntries, payload];
               const files = {
-                [gistFileName()]: {
+                [currentDateFile()]: {
                   content: JSON.stringify(records),
                 },
               };
-              setEntries((entries) => [...entries, payload]);
+              setSelectedFileEntries((entries) => [...entries, payload]);
               await updateGist(files);
             })();
           }, [text]);
@@ -185,19 +196,19 @@
 
           const removeRecord = async (e) => {
             const timestamp = e.target.getAttribute("data-timestamp");
-            const records = entries.filter(
+            const records = selectedFileEntries.filter(
               (entry) => parseInt(entry.timestamp) !== parseInt(timestamp)
             );
             const files = {
-              [gistFileName()]: {
+              [currentDateFile()]: {
                 content: JSON.stringify(records),
               },
             };
-            setEntries(records);
+            setSelectedFileEntries(records);
             await updateGist(files);
           };
 
-          const gistFileName = () => {
+          const currentDateFile = () => {
             const currentDate = new Date()
               .toLocaleString("fr-FR")
               .split(" ")[0];
@@ -224,7 +235,7 @@
                 </p>
               </div>
               <ul>
-                ${entries
+                ${selectedFileEntries
                   .sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
                   .map(
                     (entry, key) => html`
