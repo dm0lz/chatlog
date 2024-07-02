@@ -227,6 +227,7 @@
             };
             setSelectedFileEntries((entries) => [...entries, payload]);
             await updateGist(files);
+            return setFormValue("");
           };
 
           const formValueChanged = (e) => {
