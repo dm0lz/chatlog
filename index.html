@@ -17,6 +17,7 @@
           const [octokit, setOctokit] = React.useState(null);
           const [isRecording, setIsRecording] = React.useState(false);
           const [text, setText] = React.useState([]);
+          const [formValue, setFormValue] = React.useState("");
           const [entries, setEntries] = React.useState([]);
           const [isGistFetched, setIsGistFetched] = React.useState(false);
           const [selectedFileEntries, setSelectedFileEntries] = React.useState(
@@ -215,6 +216,23 @@
             return `chatlog_${currentDate.replace(/\//g, "")}`;
           };
 
+          const submitForm = async () => {
+            if (!formValue) return;
+            const payload = { timestamp: Date.now(), content: formValue };
+            const records = [...selectedFileEntries, payload];
+            const files = {
+              [currentDateFile()]: {
+                content: JSON.stringify(records),
+              },
+            };
+            setSelectedFileEntries((entries) => [...entries, payload]);
+            await updateGist(files);
+          };
+
+          const formValueChanged = (e) => {
+            setFormValue(e.currentTarget.value);
+          };
+
           return html`
             <section class="container mx-auto">
               <div class="flex justify-between mt-6 mb-4">
@@ -270,6 +288,12 @@
                     `
                   )}
               </ul>
+              <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4">
+                <div class="flex items-center">
+                  <input type="text" value=${formValue} onChange=${formValueChanged} class="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                  <button onClick=${submitForm} class="p-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Submit</button>
+                </div>
+              </div>
             </section>
           `;
         };
