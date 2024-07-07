@@ -16,6 +16,9 @@
           const html = htm.bind(React.createElement);
           const [octokit, setOctokit] = React.useState(null);
           const [isRecording, setIsRecording] = React.useState(false);
+          const [stopRecording, setStopRecording] = React.useState(false);
+          const [isRecordingInitialized, setIsRecordingInitialized] =
+            React.useState(false);
           const [text, setText] = React.useState([]);
           const [formValue, setFormValue] = React.useState("");
           const [entries, setEntries] = React.useState([]);
@@ -30,6 +33,8 @@
           selectedFileEntriesRef.current = selectedFileEntries;
           entriesRef.current = entries;
           const gistId = "df3d5ae6b78f2f1465c8523b93f1c0bc";
+          const stopRecordingRef = React.useRef(null);
+          stopRecordingRef.current = stopRecording;
 
           React.useEffect(() => {
             (async () => {
@@ -49,37 +54,45 @@
           }, []);
 
           React.useEffect(() => {
-            const SpeechRecognition =
+            if (isRecordingInitialized && isRecording && !stopRecording) return;
+            let SpeechRecognition =
               window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return;
             let recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.onresult = (event) => {
-              Array.from(event.results).forEach((result) => {
-                if (result.isFinal) {
-                  const transcript = result[0].transcript.trim();
-                  if (!lastResultsRef.current.includes(transcript)) {
-                    setText((text) => [...text, transcript]);
-                  }
-                  lastResultsRef.current.push(transcript);
-                  lastResultsRef.current.shift();
-                }
-              });
-            };
-            recognition.onend = () => {
-              setIsRecording(false);
-              restartTimeoutRef.current = setTimeout(function () {
-                recognition.start();
-                setIsRecording(true);
-              }, 100);
-            };
-            recognition.start();
-            setIsRecording(true);
-            return () => {
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            if (isRecordingInitialized && stopRecording) {
               recognition.abort();
-              recognition = null;
+              setIsRecording(false);
+            } else {
+              recognition.onresult = (event) => {
+                Array.from(event.results).forEach((result) => {
+                  if (result.isFinal) {
+                    const transcript = result[0].transcript.trim();
+                    if (!lastResultsRef.current.includes(transcript)) {
+                      setText((text) => [...text, transcript]);
+                    }
+                    lastResultsRef.current.push(transcript);
+                    lastResultsRef.current.shift();
+                  }
+                });
+              };
+              recognition.onend = () => {
+                setIsRecording(false);
+                if (stopRecordingRef.current) return;
+                restartTimeoutRef.current = setTimeout(function () {
+                  recognition.start();
+                  setIsRecording(true);
+                }, 100);
+              };
+              recognition.start();
+              setIsRecording(true);
+              setIsRecordingInitialized(true);
+            }
+            return () => {
               clearTimeout(restartTimeoutRef.current);
             };
-          }, []);
+          }, [isRecordingInitialized, stopRecording]);
 
           const fetchGist = async () => {
             const gist = await getGist();
@@ -234,6 +247,10 @@
             setFormValue(e.currentTarget.value);
           };
 
+          const stopRecordingButton = () => {
+            setStopRecording(!stopRecording);
+          };
+
           return html`
             <section class="container mx-auto">
               <div class="flex justify-between mt-6 mb-4">
@@ -250,6 +267,9 @@
                   }
                   <div>
                     Recording: ${isRecording ? "true" : "false"}
+                  </div>
+                  <div>
+                    <button onClick=${stopRecordingButton}>Stop Recording</button>
                   </div>
                 </p>
               </div>
