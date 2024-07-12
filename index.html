@@ -16,6 +16,7 @@
           const html = htm.bind(React.createElement);
           const [octokit, setOctokit] = React.useState(null);
           const [isRecording, setIsRecording] = React.useState(false);
+          const [isDisplayed, setIsDisplayed] = React.useState(false);
           const [stopRecording, setStopRecording] = React.useState(false);
           const [isRecordingInitialized, setIsRecordingInitialized] =
             React.useState(false);
@@ -52,6 +53,15 @@
               );
             })();
           }, []);
+
+          React.useEffect(() => {
+            let password = prompt("Please enter password:", "");
+            setIsDisplayed(validPassword(password));
+          }, []);
+
+          const validPassword = (password) => {
+            return password == "Nsa123";
+          };
 
           React.useEffect(() => {
             if (isRecordingInitialized && isRecording && !stopRecording) return;
