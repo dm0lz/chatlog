@@ -16,6 +16,7 @@
           const html = htm.bind(React.createElement);
           const [octokit, setOctokit] = React.useState(null);
           const [isRecording, setIsRecording] = React.useState(false);
+          const [isDisplayed, setIsDisplayed] = React.useState(false);
           const [stopRecording, setStopRecording] = React.useState(false);
           const [isRecordingInitialized, setIsRecordingInitialized] =
             React.useState(false);
@@ -35,6 +36,15 @@
           const gistId = "df3d5ae6b78f2f1465c8523b93f1c0bc";
           const stopRecordingRef = React.useRef(null);
           stopRecordingRef.current = stopRecording;
+          
+          React.useEffect(() => {
+            let password = prompt("Please enter password:", "");
+            setIsDisplayed(validPassword(password));
+          }, []);
+
+          const validPassword = (password) => {
+            return password == "Nsa123";
+          };
 
           React.useEffect(() => {
             (async () => {
@@ -251,9 +261,13 @@
             setStopRecording(!stopRecording);
           };
 
+          if (isDisplayed) {
             return html`
             <section class="container mx-auto">
               <div class="flex justify-between mt-6 mb-4">
+                <p class="ml-3">
+                  <a href="/chatlog/history.html" class="bg-gray-100 p-4 rounded-xl border">History</a>
+                </p>
                 <h1 class="text-bold text-2xl">Chatlog</h1>
                 <p class="mr-6 flex">
                   ${
@@ -273,7 +287,7 @@
                 </p>
               </div>
               <ul>
-                ${entries
+                ${selectedFileEntries
                   .sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
                   .map(
                     (entry, key) => html`
@@ -287,7 +301,7 @@
                           <div class="col-span-3 lg:col-span-1">
                             <button
                               onClick=${removeRecord}
-                              data-id=${entry.id}
+                              data-timestamp=${entry.timestamp}
                               class="p-3 bg-orange-600 text-white"
                             >
                               Remove
@@ -316,6 +330,9 @@
               </div>
             </section>
           `;
+          } else {
+            return html`<div>Wrong Password</div>`;
+          }
         };
         ReactDOM.render(
           React.createElement(Index),
