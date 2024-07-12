@@ -262,11 +262,9 @@
           };
 
           return html`
-            <section class="container mx-auto">
+            ${isDisplayed && html`
+              <section class="container mx-auto">
               <div class="flex justify-between mt-6 mb-4">
-                <p class="ml-3">
-                  <a href="/chatlog/history.html" class="bg-gray-100 p-4 rounded-xl border">History</a>
-                </p>
                 <h1 class="text-bold text-2xl">Chatlog</h1>
                 <p class="mr-6 flex">
                   ${
@@ -286,7 +284,7 @@
                 </p>
               </div>
               <ul>
-                ${selectedFileEntries
+                ${entries
                   .sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
                   .map(
                     (entry, key) => html`
@@ -300,7 +298,7 @@
                           <div class="col-span-3 lg:col-span-1">
                             <button
                               onClick=${removeRecord}
-                              data-timestamp=${entry.timestamp}
+                              data-id=${entry.id}
                               class="p-3 bg-orange-600 text-white"
                             >
                               Remove
@@ -328,6 +326,7 @@
                 </div>
               </div>
             </section>
+            `}
           `;
         };
         ReactDOM.render(
