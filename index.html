@@ -261,7 +261,7 @@
             setStopRecording(!stopRecording);
           };
 
-          if (isDisplayed)
+          if (isDisplayed) {
             return html`
             <section class="container mx-auto">
               <div class="flex justify-between mt-6 mb-4">
@@ -327,6 +327,9 @@
               </div>
             </section>
           `;
+          } else {
+            return html`<div>Wrong Password</div>`;
+          }
         };
         ReactDOM.render(
           React.createElement(Index),
