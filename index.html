@@ -17,7 +17,9 @@
           const html = htm.bind(React.createElement);
           const [octokit, setOctokit] = React.useState(null);
           const [isRecording, setIsRecording] = React.useState(false);
-          const [isDisplayed, setIsDisplayed] = React.useState(false);
+          const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+          const [authenticationStep, setAuthenticationStep] =
+            React.useState(false);
           const [stopRecording, setStopRecording] = React.useState(false);
           const [isRecordingInitialized, setIsRecordingInitialized] =
             React.useState(false);
@@ -43,8 +45,12 @@
 
           React.useEffect(() => {
             let password = prompt("Please enter password:", "");
-            setIsDisplayed(validPassword(password));
+            setIsAuthenticated(validPassword(password));
           }, []);
+
+          React.useEffect(() => {
+            setAuthenticationStep(true);
+          }, [isAuthenticated]);
 
           const validPassword = (password) => {
             return MD5(password) == "91e8f120ee5ba8573c45b5c62bb4177d";
@@ -259,7 +265,7 @@
             setStopRecording(!stopRecording);
           };
 
-          if (isDisplayed) {
+          if (isAuthenticated) {
             return html`
             <section class="container mx-auto">
               <div class="flex justify-between mt-6 mb-6">
@@ -334,7 +340,7 @@
             </section>
           `;
           } else {
-            return html`<div>Wrong Password</div>`;
+            return authenticationStep ? html`<div>Wrong Password</div>` : "";
           }
         };
         ReactDOM.render(
