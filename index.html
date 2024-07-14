@@ -11,7 +11,7 @@
       import ReactDOM from "./assets/react-dom.js";
       import htm from "./assets/htm.js";
       import MD5 from "./assets/md5.js";
-      import { Octokit } from "https://esm.sh/octokit";
+      import { Octokit } from "./assets/octokit.mjs";
       (() => {
         const Index = () => {
           const html = htm.bind(React.createElement);
@@ -53,6 +53,7 @@
           }, [isAuthenticated]);
 
           const validPassword = (password) => {
+            if (!password) return false;
             return MD5(password) == "91e8f120ee5ba8573c45b5c62bb4177d";
           };
 
@@ -68,6 +69,7 @@
           }, []);
 
           React.useEffect(() => {
+            if (!isAuthenticated) return;
             if (isRecordingInitialized && isRecording && !stopRecording) return;
             let SpeechRecognition =
               window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -106,7 +108,7 @@
             return () => {
               clearTimeout(restartTimeoutRef.current);
             };
-          }, [isRecordingInitialized, stopRecording]);
+          }, [isRecordingInitialized, stopRecording, isAuthenticated]);
 
           const fetchGist = async () => {
             const gist = await getGist();
