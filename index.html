@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="./assets/tailwindcss.js"></script>
     <script src="./assets/axios.js"></script>
+    <script src="./assets/crypto.js"></script>
     <script type="module">
       import React from "./assets/react.js";
       import ReactDOM from "./assets/react-dom.js";
       import htm from "./assets/htm.js";
+      import MD5 from "./assets/md5.js";
       import { Octokit } from "https://esm.sh/octokit";
       (() => {
         const Index = () => {
@@ -33,6 +35,9 @@
           selectedFileEntriesRef.current = selectedFileEntries;
           entriesRef.current = entries;
           const gistId = "ef4d11cb4dd8312218ea09eaf2330c3b";
+          const secretKey = "8n4q31wrdhmkihwjvr7f78wgy";
+          const encryptedToken =
+            "U2FsdGVkX1/bKV8wcsuNaGYJCCFwoQszOu2SG8dQma7ra910OBWMhYz1LU3Irr+Ia+HQ6xar+gulVBLc0s9Smc0ImlsaTx+tbdls0/V0ZMd7f/2XSOow6I1qj2kwXmSdiPyLskXL/mK64TT/pi9ozw==";
           const stopRecordingRef = React.useRef(null);
           stopRecordingRef.current = stopRecording;
 
@@ -42,21 +47,15 @@
           }, []);
 
           const validPassword = (password) => {
-            return password == "Nsa123";
+            return MD5(password) == "91e8f120ee5ba8573c45b5c62bb4177d";
           };
 
           React.useEffect(() => {
             (async () => {
-              const payload = {
-                encrypted_message:
-                  "067d7cb4b556c0ef447fd0a9f56332aefea9fee14db7aa553ae496c038b5454cf448c45a84864cc7ccdee5eada10ede1581ea2848a48260b8355a4b568283ccba818104bb176ae1fe4dc2729d5a4d1bce5aacbb250b68e8f212f716cbab2b7ab1d77031a8d8a92a0daa656213081764f2a2a146cb38ed933d720a49a81ea9394c5ecadd9c3cfefdea28aaeafc03ae55fefe4fcf57b4b5f9505549291d753f9b8c2cb4aba088ed88fbc875c469e3b64448b1ad77e2fbf48d4b4552240ee943050fbebcf654ebbd88a1b8ea4756ae6e4f015870a3811f434190c36d5020a86cb50305e1240bf197ef996b60ea6293f273356cc8a5b3e3869eeb7883005fcd6af21",
-              };
-              const decryptEndpoint =
-                "https://europe-west9-encrypt-decrypt-403217.cloudfunctions.net/decrypt-message";
-              const response = await axios.post(decryptEndpoint, payload);
+              const bytes = CryptoJS.AES.decrypt(encryptedToken, secretKey);
               setOctokit(
                 new Octokit({
-                  auth: response.data.decrypted_message,
+                  auth: bytes.toString(CryptoJS.enc.Utf8),
                 })
               );
             })();
