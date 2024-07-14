@@ -280,7 +280,7 @@
             return html`
               <section class="container mx-auto">
                 <div class="flex justify-between mt-6 mb-6">
-                  <div class="mr-6">
+                  <div class="mr-2 md:mr-4">
                     ${isRecordingInitialized &&
                     html`
                       <button
@@ -293,10 +293,11 @@
                     `}
                   </div>
                   <div class="flex-1">
-                    ${isRecording &&
-                    html`<div
-                      class="w-5 h-5 bg-red-500 rounded-full animate-pulse mt-2 md:mt-4"
-                    ></div>`}
+                    <div
+                      class=${`w-5 h-5 mt-5 md:mt-4 ${
+                        isRecording && "bg-red-500 rounded-full animate-pulse"
+                      }`}
+                    ></div>
                   </div>
                   <div class="px-2">
                     ${!ctaDisabled &&
