@@ -282,7 +282,17 @@
                     </p>
                   </div>
                   <div>
-                    <button onClick=${stopRecordingButton} class="p-3 bg-gray-50">Toggle Recording</button>
+                    ${
+                      isRecordingInitialized &&
+                      html`
+                        <button
+                          onClick=${stopRecordingButton}
+                          class="p-3 bg-gray-50"
+                        >
+                          Toggle Recording
+                        </button>
+                      `
+                    }
                   </div>
                 </p>
               </div>
