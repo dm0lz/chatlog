@@ -10,6 +10,7 @@
       import React from "./assets/react.js";
       import ReactDOM from "./assets/react-dom.js";
       import htm from "./assets/htm.js";
+      import MD5 from "./assets/md5.js";
       import { Octokit } from "./assets/octokit.mjs";
       (() => {
         const Index = () => {
@@ -17,6 +18,9 @@
           const [octokit, setOctokit] = React.useState(null);
           const [entries, setEntries] = React.useState([]);
           const [isGistFetched, setIsGistFetched] = React.useState(false);
+          const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+          const [authenticationStep, setAuthenticationStep] =
+            React.useState(false);
           const [selectedFileEntries, setSelectedFileEntries] = React.useState(
             []
           );
@@ -28,6 +32,20 @@
           const [selectedFile, setSelectedFile] = React.useState(
             `chatlog_${date.replace(/\//g, "")}`
           );
+
+          React.useEffect(() => {
+            let password = prompt("Please enter password:", "");
+            setIsAuthenticated(validPassword(password));
+          }, []);
+
+          React.useEffect(() => {
+            setAuthenticationStep(true);
+          }, [isAuthenticated]);
+
+          const validPassword = (password) => {
+            if (!password) return false;
+            return MD5(password) == "91e8f120ee5ba8573c45b5c62bb4177d";
+          };
 
           React.useEffect(() => {
             (async () => {
@@ -128,70 +146,82 @@
             setSelectedFile(file);
           };
 
-          return html`
-            <section class="container mx-auto">
-              <div class="mx-3 flex overflow-x-scroll sticky top-0 bg-white">
-                ${entries
-                  .sort((a, b) => b.date - a.date)
-                  .map(
-                    (entry, key) => html`
-                      <div class="p-2">
-                        <p
-                          key=${key}
-                          class=${`p-3 ${
-                            entry.fileName === selectedFile
-                              ? "bg-black text-white"
-                              : "bg-gray-100"
-                          } rounded-xl cursor-pointer w-32 text-center`}
-                          data-fileName=${entry.fileName}
-                          onClick=${handleFileNameSelected}
-                        >
-                          ${entry.fileName.replace("chatlog_", "").slice(0, 2)}-
-                          ${entry.fileName.replace("chatlog_", "").slice(2, 4)}-
-                          ${entry.fileName.replace("chatlog_", "").slice(4, 8)}
-                        </p>
-                      </div>
-                    `
-                  )}
-              </div>
-              <ul class="-mt-3">
-                ${selectedFileEntries
-                  .sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
-                  .map(
-                    (entry, key) => html`
-                      <li key=${key}>
-                        <div
-                          class="grid grid-cols-12 m-3 p-3 border-2 rounded-md bg-amber-100"
-                        >
-                          <p class="col-span-9 lg:col-span-11 px-6">
-                            ${entry.content}
+          if (isAuthenticated) {
+            return html`
+              <section class="container mx-auto">
+                <div class="mx-3 flex overflow-x-scroll sticky top-0 bg-white">
+                  ${entries
+                    .sort((a, b) => b.date - a.date)
+                    .map(
+                      (entry, key) => html`
+                        <div class="p-2">
+                          <p
+                            key=${key}
+                            class=${`p-3 ${
+                              entry.fileName === selectedFile
+                                ? "bg-black text-white"
+                                : "bg-gray-100"
+                            } rounded-xl cursor-pointer w-32 text-center`}
+                            data-fileName=${entry.fileName}
+                            onClick=${handleFileNameSelected}
+                          >
+                            ${entry.fileName
+                              .replace("chatlog_", "")
+                              .slice(0, 2)}-
+                            ${entry.fileName
+                              .replace("chatlog_", "")
+                              .slice(2, 4)}-
+                            ${entry.fileName
+                              .replace("chatlog_", "")
+                              .slice(4, 8)}
                           </p>
-                          <div class="col-span-3 lg:col-span-1">
-                            <button
-                              onClick=${removeRecord}
-                              data-timestamp=${entry.timestamp}
-                              class="p-3 bg-orange-600 text-white"
-                            >
-                              Remove
-                            </button>
-                            <p>
-                              ${new Date(parseInt(entry.timestamp))
-                                .toLocaleString()
-                                .split(" ")[0]}
-                            </p>
-                            <p>
-                              ${new Date(parseInt(entry.timestamp))
-                                .toLocaleString()
-                                .split(" ")[1]}
-                            </p>
-                          </div>
                         </div>
-                      </li>
-                    `
-                  )}
-              </ul>
-            </section>
-          `;
+                      `
+                    )}
+                </div>
+                <ul class="-mt-3">
+                  ${selectedFileEntries
+                    .sort(
+                      (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
+                    )
+                    .map(
+                      (entry, key) => html`
+                        <li key=${key}>
+                          <div
+                            class="grid grid-cols-12 m-3 p-3 border-2 rounded-md bg-amber-100"
+                          >
+                            <p class="col-span-9 lg:col-span-11 px-6">
+                              ${entry.content}
+                            </p>
+                            <div class="col-span-3 lg:col-span-1">
+                              <button
+                                onClick=${removeRecord}
+                                data-timestamp=${entry.timestamp}
+                                class="p-3 bg-orange-600 text-white"
+                              >
+                                Remove
+                              </button>
+                              <p>
+                                ${new Date(parseInt(entry.timestamp))
+                                  .toLocaleString()
+                                  .split(" ")[0]}
+                              </p>
+                              <p>
+                                ${new Date(parseInt(entry.timestamp))
+                                  .toLocaleString()
+                                  .split(" ")[1]}
+                              </p>
+                            </div>
+                          </div>
+                        </li>
+                      `
+                    )}
+                </ul>
+              </section>
+            `;
+          } else {
+            return authenticationStep ? html`<div>Wrong Password</div>` : "";
+          }
         };
         ReactDOM.render(
           React.createElement(Index),
