@@ -278,99 +278,108 @@
 
           if (isAuthenticated) {
             return html`
-            <section class="container mx-auto">
-              <div class="flex justify-between mt-6 mb-6">
-                <p class="ml-3 pt-2.5">
-                  <button
-                    onClick=${goToHistory}
-                    disabled=${ctaDisabled}
-                    class="p-3 bg-gray-100 border rounded-xl"
-                  >
-                    History
-                  </button>
-                </p>
-                <div>
-                  ${
-                    !ctaDisabled &&
+              <section class="container mx-auto">
+                <div class="flex justify-between mt-6 mb-6">
+                  <div class="mr-6">
+                    ${isRecordingInitialized &&
+                    html`
+                      <button
+                        onClick=${stopRecordingButton}
+                        disabled=${ctaDisabled}
+                        class="ml-3 p-1 md:p-3 bg-gray-100 border rounded-xl"
+                      >
+                        Toggle Recording
+                      </button>
+                    `}
+                  </div>
+                  <div class="flex-1">
+                    ${isRecording &&
+                    html`<div
+                      class="w-5 h-5 bg-red-500 rounded-full animate-pulse mt-2 md:mt-4"
+                    ></div>`}
+                  </div>
+                  <div class="px-2">
+                    ${!ctaDisabled &&
                     html`
                       <button
                         onClick=${toggleClickability}
                         disabled=${ctaDisabled}
-                        class="p-3 bg-gray-100 border rounded-xl"
+                        class="p-1 md:p-3 bg-gray-100 border rounded-xl"
                       >
                         Toggle Clickability
                       </button>
-                    `
-                  }
-                </div>
-                <p class="mr-6 flex">
-                  ${
-                    isRecording &&
-                    html`<div
-                      class="w-5 h-5 bg-red-500 rounded-full animate-pulse mr-2 mt-3"
-                    ></div>`
-                  }
-                  <div>
-                    ${
-                      isRecordingInitialized &&
-                      html`
-                        <button
-                          onClick=${stopRecordingButton}
-                          disabled=${ctaDisabled}
-                          class="p-3 bg-gray-100 border rounded-xl"
-                        >
-                          Toggle Recording
-                        </button>
-                      `
-                    }
+                    `}
                   </div>
-                </p>
-              </div>
-              <ul>
-                ${selectedFileEntries
-                  .sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
-                  .map(
-                    (entry, key) => html`
-                      <li key=${key}>
-                        <div
-                          class="grid grid-cols-12 m-3 p-3 border-2 rounded-md bg-amber-100"
-                        >
-                          <p class="col-span-9 lg:col-span-11 px-6">
-                            ${entry.content}
-                          </p>
-                          <div class="col-span-3 lg:col-span-1">
-                            <button
-                              onClick=${removeRecord}
-                              disabled=${ctaDisabled}
-                              data-timestamp=${entry.timestamp}
-                              class="p-3 bg-orange-600 text-white"
-                            >
-                              Remove
-                            </button>
-                            <p>
-                              ${new Date(parseInt(entry.timestamp))
-                                .toLocaleString()
-                                .split(" ")[0]}
-                            </p>
-                            <p>
-                              ${new Date(parseInt(entry.timestamp))
-                                .toLocaleString()
-                                .split(" ")[1]}
-                            </p>
-                          </div>
-                        </div>
-                      </li>
-                    `
-                  )}
-              </ul>
-              <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4">
-                <div class="flex items-center">
-                  <input type="text" value=${formValue} onChange=${formValueChanged} class="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                  <button onClick=${submitForm} disabled=${ctaDisabled} class="p-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Submit</button>
+                  <p class="mr-3">
+                    <button
+                      onClick=${goToHistory}
+                      disabled=${ctaDisabled}
+                      class="p-1 md:p-3 bg-gray-100 border rounded-xl"
+                    >
+                      History
+                    </button>
+                  </p>
                 </div>
-              </div>
-            </section>
-          `;
+                <ul>
+                  ${selectedFileEntries
+                    .sort(
+                      (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
+                    )
+                    .map(
+                      (entry, key) => html`
+                        <li key=${key}>
+                          <div
+                            class="grid grid-cols-12 m-3 p-3 border-2 rounded-md bg-amber-100"
+                          >
+                            <p class="col-span-9 lg:col-span-11 px-6">
+                              ${entry.content}
+                            </p>
+                            <div class="col-span-3 lg:col-span-1">
+                              <button
+                                onClick=${removeRecord}
+                                disabled=${ctaDisabled}
+                                data-timestamp=${entry.timestamp}
+                                class="p-3 bg-orange-600 text-white"
+                              >
+                                Remove
+                              </button>
+                              <p>
+                                ${new Date(parseInt(entry.timestamp))
+                                  .toLocaleString()
+                                  .split(" ")[0]}
+                              </p>
+                              <p>
+                                ${new Date(parseInt(entry.timestamp))
+                                  .toLocaleString()
+                                  .split(" ")[1]}
+                              </p>
+                            </div>
+                          </div>
+                        </li>
+                      `
+                    )}
+                </ul>
+                <div
+                  class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4"
+                >
+                  <div class="flex items-center">
+                    <input
+                      type="text"
+                      value=${formValue}
+                      onChange=${formValueChanged}
+                      class="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <button
+                      onClick=${submitForm}
+                      disabled=${ctaDisabled}
+                      class="p-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              </section>
+            `;
           } else {
             return authenticationStep ? html`<div>Wrong Password</div>` : "";
           }
