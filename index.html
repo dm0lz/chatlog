@@ -3,14 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/x-icon" href="/chatlog/favicon.ico" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./assets/tailwindcss.js"></script>
+    <script src="./assets/axios.js"></script>
     <script type="module">
-      import React from "https://cdn.skypack.dev/react";
-      import ReactDOM from "https://cdn.skypack.dev/react-dom";
-      import htm from "https://cdn.skypack.dev/htm";
+      import React from "./assets/react.js";
+      import ReactDOM from "./assets/react-dom.js";
+      import htm from "./assets/htm.js";
       import { Octokit } from "https://esm.sh/octokit";
-      import axios from "https://cdn.skypack.dev/axios";
       (() => {
         const Index = () => {
           const html = htm.bind(React.createElement);
@@ -36,7 +35,7 @@
           const gistId = "ef4d11cb4dd8312218ea09eaf2330c3b";
           const stopRecordingRef = React.useRef(null);
           stopRecordingRef.current = stopRecording;
-          
+
           React.useEffect(() => {
             let password = prompt("Please enter password:", "");
             setIsDisplayed(validPassword(password));
@@ -273,14 +272,9 @@
                   ${
                     isRecording &&
                     html`<div
-                      class="w-5 h-5 bg-red-500 rounded-full animate-pulse mr-2 mt-0.5"
+                      class="w-5 h-5 bg-red-500 rounded-full animate-pulse mr-2 mt-3"
                     ></div>`
                   }
-                  <div>
-                    <p class="p-3">
-                      ${isRecording ? "Recording" : ""}
-                    </p>
-                  </div>
                   <div>
                     ${
                       isRecordingInitialized &&

@@ -3,14 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/x-icon" href="/chatlog/favicon.ico" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./assets/tailwindcss.js"></script>
+    <script src="./assets/axios.js"></script>
     <script type="module">
-      import React from "https://cdn.skypack.dev/react";
-      import ReactDOM from "https://cdn.skypack.dev/react-dom";
-      import htm from "https://cdn.skypack.dev/htm";
+      import React from "./assets/react.js";
+      import ReactDOM from "./assets/react-dom.js";
+      import htm from "./assets/htm.js";
       import { Octokit } from "https://esm.sh/octokit";
-      import axios from "https://cdn.skypack.dev/axios";
       (() => {
         const Index = () => {
           const html = htm.bind(React.createElement);
