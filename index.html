@@ -2,8 +2,16 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"
+    />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+
     <script src="./assets/tailwindcss.js"></script>
     <script src="./assets/axios.js"></script>
     <script src="./assets/crypto.js"></script>
@@ -56,7 +64,7 @@
 
           const validPassword = (password) => {
             if (!password) return false;
-            return MD5(password) == "0412602282fa1221ff211994895aa4d2";
+            return MD5(password) == "98d65d79d249e5f00b5144283eefa8fa";
           };
 
           React.useEffect(() => {
