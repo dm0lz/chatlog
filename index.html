@@ -270,29 +270,10 @@
 
           const toggleClickability = () => {
             setCtaDisabled(!ctaDisabled);
-            toggleFullScreen();
           };
 
           const goToHistory = () => {
             window.location.href = "/chatlog/history.html";
-          };
-
-          const toggleFullScreen = () => {
-            if (!document.fullscreenElement) {
-              openFullscreen(document.documentElement);
-            } else if (document.exitFullscreen) {
-              document.exitFullscreen();
-            }
-          };
-
-          const openFullscreen = (elem) => {
-            if (elem.requestFullscreen) {
-              elem.requestFullscreen();
-            } else if (elem.webkitRequestFullscreen) {
-              elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) {
-              elem.msRequestFullscreen();
-            }
           };
 
           if (isAuthenticated) {
