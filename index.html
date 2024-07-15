@@ -279,9 +279,19 @@
 
           const toggleFullScreen = () => {
             if (!document.fullscreenElement) {
-              document.documentElement.requestFullscreen();
+              openFullscreen(document.documentElement);
             } else if (document.exitFullscreen) {
               document.exitFullscreen();
+            }
+          };
+
+          const openFullscreen = (elem) => {
+            if (elem.requestFullscreen) {
+              elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+              elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+              elem.msRequestFullscreen();
             }
           };
 
