@@ -95,7 +95,7 @@
             if (entries.length === 0) return;
             const entry = entries.find((entry) => entry.fileName === file);
             const response = await axios.get(entry.url);
-            fileEntries =
+            const fileEntries =
               typeof response.data == "string"
                 ? JSON.parse(response.data)
                 : response.data;
