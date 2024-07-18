@@ -15,12 +15,13 @@
       (() => {
         const Index = () => {
           const html = htm.bind(React.createElement);
+          const [isModalOpen, setIsModalOpen] = React.useState(true);
+          const [password, setPassword] = React.useState("");
           const [octokit, setOctokit] = React.useState(null);
           const [entries, setEntries] = React.useState([]);
           const [isGistFetched, setIsGistFetched] = React.useState(false);
           const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-          const [authenticationStep, setAuthenticationStep] =
-            React.useState(false);
+          const inputRef = React.useRef(null);
           const [selectedFileEntries, setSelectedFileEntries] = React.useState(
             []
           );
@@ -34,18 +35,8 @@
           );
 
           React.useEffect(() => {
-            let password = prompt("Please enter password:", "");
-            setIsAuthenticated(validPassword(password));
-          }, []);
-
-          React.useEffect(() => {
-            setAuthenticationStep(true);
-          }, [isAuthenticated]);
-
-          const validPassword = (password) => {
-            if (!password) return false;
-            return MD5(password) == "ca215396be47f0f615479fc977f50170";
-          };
+            inputRef.current?.focus();
+          }, [inputRef.current]);
 
           React.useEffect(() => {
             (async () => {
@@ -146,6 +137,19 @@
             setSelectedFile(file);
           };
 
+          const passwordChange = (e) => {
+            setPassword(e.target.value);
+          };
+
+          const submitPassword = () => {
+            setIsAuthenticated(validPassword(password));
+          };
+
+          const validPassword = (password) => {
+            if (!password) return false;
+            return MD5(password) == "ca215396be47f0f615479fc977f50170";
+          };
+
           if (isAuthenticated) {
             return html`
               <section class="container mx-auto">
@@ -220,7 +224,37 @@
               </section>
             `;
           } else {
-            return authenticationStep ? html`<div>Wrong Password</div>` : "";
+            return html`
+              <div>
+                <div
+                  class=${`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center ${
+                    !isModalOpen && "hidden"
+                  }`}
+                >
+                  <div class="bg-white px-12 py-6 rounded shadow-lg w-1/4">
+                    <p class="mb-4">Enter Password</p>
+                    <div class="flex mb-4">
+                      <form onSubmit=${submitPassword}>
+                        <input
+                          ref=${inputRef}
+                          type="password"
+                          value=${password}
+                          onChange=${passwordChange}
+                          class="p-2 border border-gray-300 rounded"
+                        />
+                        <button
+                          type="submit"
+                          onClick=${submitPassword}
+                          class="bg-green-500 text-white px-4 py-2 rounded"
+                        >
+                          Submit
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
           }
         };
         ReactDOM.render(
