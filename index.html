@@ -275,7 +275,8 @@
             setPassword(e.target.value);
           };
 
-          const submitPassword = () => {
+          const submitPassword = (e) => {
+            e.preventDefault();
             setIsAuthenticated(validPassword(password));
           };
 
