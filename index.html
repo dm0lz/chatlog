@@ -50,7 +50,12 @@
           const inputRef = React.useRef(null);
 
           React.useEffect(() => {
-            inputRef.current?.focus();
+            const timeout = setTimeout(() => {
+              inputRef.current?.focus();
+            }, 100);
+            return () => {
+              clearTimeout(timeout);
+            };
           }, [inputRef.current]);
 
           React.useEffect(() => {
