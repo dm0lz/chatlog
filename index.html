@@ -262,7 +262,7 @@
             setStopRecording(!stopRecording);
           };
 
-          const toggleClickability = () => {
+          const hideCtas = () => {
             setCtaDisabled(!ctaDisabled);
           };
 
@@ -311,10 +311,10 @@
                     ${!ctaDisabled &&
                     html`
                       <button
-                        onClick=${toggleClickability}
+                        onClick=${hideCtas}
                         class="p-1 md:p-3 bg-gray-100 border rounded-xl"
                       >
-                        Toggle Clickability
+                        Hide Ctas
                       </button>
                     `}
                   </div>
