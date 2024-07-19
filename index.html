@@ -50,12 +50,7 @@
           const inputRef = React.useRef(null);
 
           React.useEffect(() => {
-            const timeout = setTimeout(() => {
-              inputRef.current?.focus();
-            }, 300);
-            return () => {
-              clearTimeout(timeout);
-            };
+            inputRef.current?.focus();
           }, [inputRef.current]);
 
           React.useEffect(() => {
@@ -413,6 +408,7 @@
                           value=${password}
                           onChange=${passwordChange}
                           class="p-2 border border-gray-300 rounded"
+                          autofocus
                         />
                         <button
                           type="submit"
