@@ -290,10 +290,10 @@
                 <div class="flex justify-between mt-6 mb-6">
                   <div class="mr-2 md:mr-4">
                     ${isRecordingInitialized &&
+                    !ctaDisabled &&
                     html`
                       <button
                         onClick=${stopRecordingButton}
-                        disabled=${ctaDisabled}
                         class="ml-3 p-1 md:p-3 bg-gray-100 border rounded-xl"
                       >
                         Toggle Recording
@@ -312,7 +312,6 @@
                     html`
                       <button
                         onClick=${toggleClickability}
-                        disabled=${ctaDisabled}
                         class="p-1 md:p-3 bg-gray-100 border rounded-xl"
                       >
                         Toggle Clickability
@@ -320,13 +319,15 @@
                     `}
                   </div>
                   <p class="mr-3">
-                    <button
-                      onClick=${goToHistory}
-                      disabled=${ctaDisabled}
-                      class="p-1 md:p-3 bg-gray-100 border rounded-xl"
-                    >
-                      History
-                    </button>
+                    ${!ctaDisabled &&
+                    html`
+                      <button
+                        onClick=${goToHistory}
+                        class="p-1 md:p-3 bg-gray-100 border rounded-xl"
+                      >
+                        History
+                      </button>
+                    `}
                   </p>
                 </div>
                 <ul>
@@ -344,14 +345,16 @@
                               ${entry.content}
                             </p>
                             <div class="col-span-3 lg:col-span-1">
-                              <button
-                                onClick=${removeRecord}
-                                disabled=${ctaDisabled}
-                                data-timestamp=${entry.timestamp}
-                                class="p-3 bg-orange-600 text-white"
-                              >
-                                Remove
-                              </button>
+                              ${!ctaDisabled &&
+                              html`
+                                <button
+                                  onClick=${removeRecord}
+                                  data-timestamp=${entry.timestamp}
+                                  class="p-3 bg-orange-600 text-white"
+                                >
+                                  Remove
+                                </button>
+                              `}
                               <p>
                                 ${new Date(parseInt(entry.timestamp))
                                   .toLocaleString()
