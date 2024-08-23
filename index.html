@@ -54,7 +54,7 @@
 
           React.useEffect(() => {
             (async () => {
-              if (!isAuthenticated) return;
+              // if (!isAuthenticated) return;
               const bytes = CryptoJS.AES.decrypt(encryptedToken, secretKey);
               setOctokit(
                 new Octokit({
