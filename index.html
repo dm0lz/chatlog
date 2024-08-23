@@ -22,7 +22,7 @@
           const [octokit, setOctokit] = React.useState(null);
           const [password, setPassword] = React.useState("");
           const [isRecording, setIsRecording] = React.useState(false);
-          const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+          const [isAuthenticated, setIsAuthenticated] = React.useState(true);
           const [ctaDisabled, setCtaDisabled] = React.useState(false);
           const [stopRecording, setStopRecording] = React.useState(false);
           const [isRecordingInitialized, setIsRecordingInitialized] =
@@ -54,7 +54,7 @@
 
           React.useEffect(() => {
             (async () => {
-              // if (!isAuthenticated) return;
+              if (!isAuthenticated) return;
               const bytes = CryptoJS.AES.decrypt(encryptedToken, secretKey);
               setOctokit(
                 new Octokit({
